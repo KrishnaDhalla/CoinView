@@ -1,0 +1,96 @@
+import React, { useEffect, useState } from "react";
+import Axios from "axios";
+import { Link } from "react-router-dom";
+import { styled } from "@mui/material/styles";
+import { CryptoState } from "../../Cryptocontext";
+import AliceCarousel from "react-alice-carousel";
+
+const carousel = styled("div")({
+  height: "50%",
+  display: "flex",
+  alignItems: "center",
+});
+
+const CarouselItem = styled(Link)({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  cursor: "pointer",
+  textTransform: "uppercase",
+  color: "white",
+});
+export function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+const Carousel = () => {
+  const [trending, setTrending] = useState([]);
+  const { currency, symbol } = CryptoState();
+  const fetchTrendingCoins = async () => {
+    const { data } = await Axios.get(
+      `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`
+    );
+
+    setTrending(data);
+  };
+  console.log(trending);
+  useEffect(() => {
+    fetchTrendingCoins();
+  }, [currency]);
+
+  const items = trending.map((coin) => {
+    let profit = coin.price_change_percentage_24h >= 0;
+    return (
+      <CarouselItem to={`/coins/${coin.id}`}>
+        <img
+          src={coin?.image}
+          alt={coin.name}
+          height="80"
+          style={{ marginBottom: 10 }}
+        />
+        <span
+          style={{
+            color: profit > 0 ? "rgb(14,203,129)" : "red",
+            fontWeight: 500,
+          }}
+        >
+          {coin?.Symbol}
+          &nbsp;
+          <span>
+            {profit && "+"}
+            {coin?.price_change_percentage_24h?.toFixed(2)}%
+          </span>
+        </span>
+        <span style={{ fontSize: 18, fontWeight: 500 }}>
+          {symbol}
+          {numberWithCommas(coin?.current_price.toFixed(2))}
+        </span>
+      </CarouselItem>
+    );
+  });
+  const responsive = {
+    0: {
+      items: 2,
+    },
+    512: {
+      items: 4,
+    },
+  };
+
+  return (
+    <carousel>
+      <AliceCarousel
+        mouseTracking
+        infinite
+        autoPlayInterval={1000}
+        animationDuration={1500}
+        disableDotsControls
+        disableButtonsControls
+        responsive={responsive}
+        autoPlay
+        items={items}
+      />
+    </carousel>
+  );
+};
+
+export default Carousel;
