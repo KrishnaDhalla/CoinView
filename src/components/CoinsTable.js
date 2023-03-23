@@ -11,6 +11,7 @@ import {
   TableBody,
   Paper,
   Pagination,
+  Box,
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import axios from "axios";
@@ -119,7 +120,7 @@ const CoinsTable = () => {
                         scope="row"
                         sx={{
                           display: "flex",
-                          gap: 15,
+                          gap: 12,
                         }}
                       >
                         <img
@@ -156,7 +157,7 @@ const CoinsTable = () => {
                         {profit && "+"}
                         {row.price_change_percentage_24h.toFixed(2)}%
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="left">
                         {symbol}{" "}
                         {numberWithCommas(
                           row.market_cap.toString().slice(0, -6)
@@ -169,21 +170,25 @@ const CoinsTable = () => {
             </Table>
           )}
         </TableContainer>
-        <Pagination count={(handleSearch().length/10).toFixed(0)}
+        <Box justifyContent={"center"} alignItems="center" display={"flex"} sx={{
+          paddingTop:10,
+          paddingBottom:10,
+          maxWidth:"100%",
+        }}>
+        <Pagination 
+        count={(handleSearch().length/10).toFixed(0)}
+        size="medium"
         variant="outlined"
-        sx={{
-          padding: 15,
-          width: "100%",
-          display: "flex",
-           justifyContent: "center",
-        }}
           onChange={(_, value) => {
             setPage(value);
             window.scroll(0, 450);
           }}/>
+        </Box>
       </Container>
     </ThemeProvider>
   );
 };
 
 export default CoinsTable;
+
+
