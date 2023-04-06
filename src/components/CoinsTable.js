@@ -14,30 +14,18 @@ import {
   Box,
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { CryptoState } from "../Cryptocontext";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
 import { styled } from '@mui/material/styles';
 import { numberWithCommas } from "./Banner/Carousel";
-import { Colors } from "chart.js";
-import { Stack } from "@mui/system";
 const CoinsTable = () => {
-  const { currency, symbol } = CryptoState();
-  const [coins, setCoins] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { currency, symbol ,coins, loading, fetchCoins } = CryptoState();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  const fetchCoins = async () => {
-    setLoading(true);
-    const { data } = await axios.get(
-      `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=100&page=1&sparkline=false`
-    );
-    setCoins(data);
-    setLoading(false);
-  };
+ 
 
   //console.log(coins)
   useEffect(() => {

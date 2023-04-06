@@ -3,14 +3,17 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CryptoState } from "../Cryptocontext";
 import { styled } from "@mui/material/styles";
-import { LinearProgress, Typography } from "@mui/material";
+import { Button, LinearProgress, Typography, colors } from "@mui/material";
 import DOMPurify from "dompurify";
 import { numberWithCommas } from "../components/Banner/Carousel";
 import CoinInfo from "../components/CoinInfo";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 export const CoinPage = () => {
   const { id } = useParams();
   const [coin, setCoin] = useState();
-  const { currency, symbol } = CryptoState();
+  const { currency, symbol, user ,watchlist,setAlert} = CryptoState();
+  const inWatchList=watchlist.includes(coin?.id)
   const fetchCoin = async () => {
     const { data } = await axios.get(
       `https://api.coingecko.com/api/v3/coins/${id}`
@@ -73,6 +76,50 @@ export const CoinPage = () => {
       alignItems: "start",
     },
   }));
+  const addToWatchlist = async () => {
+    const coinRef = doc(db, "watchlist", user.uid);
+    try {
+      await setDoc(
+        coinRef,
+        { coins: watchlist ? [...watchlist, coin?.id] : [coin?.id] }
+      );
+
+      setAlert({
+        open: true,
+        message: `${coin.name} Added to the Watchlist !`,
+        type: "success",
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+    }
+  }
+  const removeFromWatchlist = async () => {
+    const coinRef = doc(db, "watchlist", user.uid);
+    try {
+      await setDoc(
+        coinRef,
+        { coins:watchlist.filter((watch)=>watch!==coin?.id)},
+        {merge:"true"}
+      );
+
+      setAlert({
+        open: true,
+        message: `${coin.name} Removed from the Watchlist !`,
+        type: "success",
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+    }
+  }
+
   if (!coin) return <LinearProgress className="tablehead-background" />;
 
   return (
@@ -133,6 +180,20 @@ export const CoinPage = () => {
               M
             </Typography>
           </span>
+                {user &&(
+                  <Button
+                  
+                  variant="outlined"
+                  sx={{width:"100%",
+                      height:40,
+                      color:"white",
+                      backgroundColor: inWatchList ? "#FF584F" : "#43e97b"
+                  
+                    }}
+                    onClick={inWatchList ? removeFromWatchlist : addToWatchlist}>
+                      {inWatchList?"Remove from Watchlist": "Add to Watchlist"}
+                    </Button>
+                )}
         </MarketData>
       </Sidebar>
       <CoinInfo coin={coin} />
