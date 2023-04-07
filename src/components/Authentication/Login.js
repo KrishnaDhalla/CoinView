@@ -59,7 +59,7 @@ export const Login = ({handleClose}) => {
 
         </TextField>
         <Button variant="contained" size='large' sx={{backgroundColor:"#43e97b"}} onClick={handleSubmit}>
-        Sign Up
+        Sign In
         </Button>
     </Box>
   )
